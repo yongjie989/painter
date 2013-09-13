@@ -1,0 +1,246 @@
+﻿/*
+Author: Ethan Huang
+Email: yongjie989@gmail.com
+** Attention here have use chinese font, so we need to encode the file to UTF8.
+*/
+@import url(http://fonts.googleapis.com/css?family=Flavors);
+@import url(http://fonts.googleapis.com/css?family=UnifrakturMaguntia);
+@import url(http://fonts.googleapis.com/css?family=Hanalei);
+@import url(http://fonts.googleapis.com/css?family=Pinyon+Script);
+    
+@font-face {
+  font-family: "王漢宗新潮體";
+  src: url("fonts/WCL-01.ttf")
+}
+@font-face {
+  font-family: "王漢宗特明體";
+  src: url("fonts/WCL-02.ttf")
+}
+@font-face {
+  font-family: "王漢宗波卡體";
+  src: url("fonts/WCL-03.ttf")
+}
+@font-face {
+  font-family: "王漢宗中隸書";
+  src: url("fonts/wt021.ttf")
+}
+@font-face {
+  font-family: "王漢宗中仿宋";
+  src: url("fonts/wt024.ttf")
+}
+@font-face {
+  font-family: "王漢宗空疊圓";
+  src: url("fonts/wt028.ttf")
+}
+@font-face {
+  font-family: "王漢宗勘亭流";
+  src: url("fonts/wt034.ttf")
+}
+@font-face {
+  font-family: "王漢宗酷正海報";
+  src: url("fonts/wtcc15.ttf")
+}
+
+
+html, body {
+	font-family: 'Buenard', serif, "新細明體", "王漢宗新潮體", "王漢宗特明體", "王漢宗中隸書", "王漢宗中仿宋", "王漢宗空疊圓", "王漢宗勘亭流","王漢宗酷正海報",'Flavors','UnifrakturMaguntia','Hanalei','Pinyon Script';
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	height: 96%;
+}
+#whole_content {
+	height: 100%;
+}
+#toolbar {
+	background-color: #D1D0CE;
+	height: 20px;
+	border-bottom: 3px solid #dddddd;
+}
+#toolbar div {
+	padding: 0px;	
+}
+#toolbar div span {
+	font-size:10px;
+	text-shadow: 2px 2px #cccccc;
+	font-weight: bold;
+	background-color: #f2f2f2;
+	width: 100px;
+	padding-left: 5px;
+	padding-right:5px;
+	padding-top: 2px;
+	padding-bottom: 2px; 	
+	cursor: pointer;
+	margin-right: 3px;
+	border-left: 1px solid #000000;
+	border-right: 1px solid #000000;
+	border-top: 1px solid #000000;
+}
+
+#toolbar_setup_panel {
+	background-color: #DFDFDF;
+	height: 65px;
+	border-bottom: 3px solid #dddddd;
+}
+#toolbar_setup_panel div {
+	padding: 2px;	
+}
+
+#toolbar_setup_panel div span {
+	font-size: 10px;
+	text-shadow: 2px 2px #cccccc;
+	font-weight: bold;
+	width: 100px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	margin-right: 3px;
+}
+
+#close_toolbar_setup_panel {
+	float: right;
+	position: relative;
+	top: -20px;	
+}
+
+#albums {
+	float: left;
+	width: 170px;
+	height: 96%;
+	background-color: #D1D0CE;	
+	border-right: 3px solid #dddddd;
+	overflow-y: scroll;
+}
+
+#albums div {
+	padding: 5px;	
+}
+
+#mycanvas {	
+	width: 100%;
+	
+	margin-top: 30px;
+}
+
+#separate_line {
+	margin-left: 200px;
+	border-right: 1px dashed #ff0000;
+	width: 550px;
+	height: 500px;
+}
+#mycanvas_base {
+	
+	border: 1px solid #cccccc;
+	width: 1100px;
+	height: 500px;
+	box-shadow: 10px 10px 5px #888888;
+	
+}
+
+#pages {
+	margin-left: 200px;
+}
+#pages div {
+	padding-top: 25px;	
+}
+
+#left_menu span {
+	line-height: 30px;
+	padding-left: 6px;
+	padding-right: 6px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	border: 1px solid #ffffff;
+	background-color: #cccccc;
+	cursor: pointer;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	background-color: #4779AB;
+}
+
+[draggable] {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    /* Required to make elements draggable in old WebKit */
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+    cursor: move;
+}
+#photos_page img.img_dragging {
+    opacity: 0.4;
+}
+
+#text_page {
+    color:#ffffff;
+}
+
+.separate_line {
+    border-bottom: 1px dotted #ffffff;
+}
+
+input, textarea {
+    border: 1px solid #cccccc;
+    padding:2px;
+}
+
+#layer {
+	height: 96%;
+	width:200px;
+	background-color:#DFDFDF;
+	float:right;
+	border: 1px solid #000000;
+}
+
+.layer_block {
+	border: 1px solid #313140;
+	margin: 2px;	
+	background-color: #ffffff;
+	cursor: pointer;
+}
+
+.block_name {
+	background-color: #0040FF;
+	color:#ffffff;
+	font-weight: bold;
+	font-size: 12px;
+	padding:2px;
+}
+
+#layer_list {
+	overflow-y: scroll;
+	height: 500px;
+}
+#layer_name{
+	font-size:10px;
+}
+
+#page_toolbar span {
+	border: 1px solid #333333;
+	padding: 5px;
+	background-color: #cccccc;
+	margin-right: 3px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+#right_menu {
+	position: fixed;
+}
+#right_menu div {
+	border: 1px solid #3B3131;
+	padding: 3px;
+	background-color: #837E7C;
+	font-size:10px;
+	color: #ffffff;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	box-shadow: 3px 3px #cccccc;
+	cursor: pointer;
+}

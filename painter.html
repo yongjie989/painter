@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title></title>
+<link href='http://fonts.googleapis.com/css?family=Buenard' rel='stylesheet' type='text/css'>
+<link type="text/css" rel="stylesheet" href="painter/painter.css" />
+<link type="text/css" rel="stylesheet" href="painter/fontselector.css" />
+<script src="painter/fabric.all.min.js" ></script>
+<script src="painter/jquery-1.10.2.min.js"></script>
+<script src="painter/modernizr.custom.50476.js"></script>
+<script src="painter/jquery.fontselector.js"></script>
+<script src="painter/url.js"></script>
+
+<style>
+#init_box_block{
+	height:100%;
+	width:100%;
+	position:fixed;
+	left:0;
+	top:0;
+	z-index:1 !important;
+	background-color:black;
+	filter: alpha(opacity=75);
+	-khtml-opacity: 0.75;
+	-moz-opacity: 0.75;
+	opacity: 0.75;  
+}
+
+#init_inner_box{
+	width:600px;
+	height:400px;
+	position: relative;
+	background-color: #000000;
+	top:200px;
+	left:550px;
+	filter: alpha(opacity=1);
+	-khtml-opacity: 1;
+	-moz-opacity: 1;
+	opacity: 1;
+	
+}
+</style>
+</head>
+<body>
+<div id="whole_content">
+	<div id="toolbar">
+		<div>
+			<span id="Completed" onclick="checkout();">
+				結帳
+			</span>
+			<span id="Completed" onclick="completed();">
+				完成製作
+			</span>
+			<span id="Preview" onclick="preview();">
+				預覽
+			</span>
+			<span id="Save" onclick="save();">
+				儲存
+			</span>
+			<span id="Undo" onclick="undo()">
+				復原
+			</span>
+			<span id="Redo" onclick="redo()">
+				重做
+			</span>
+			<!--
+			<span id="Delete" onclick="delete_object();">
+				刪除物件
+			</span>
+			-->
+			<span id="ZoomIn" onclick="enlarge_object();";>
+				放大
+			</span>
+			<span id="ZoomOut" onclick="decrease_object();";>
+				縮小
+			</span>
+			<span id="Standard" onclick="";>
+				工作清單
+			</span>
+			<span id="Standard" onclick="";>
+				參考標準色
+			</span>
+			
+			<!--
+			<span id="Fonts">
+				<img src="painter/images/icons/actions/format-text-bold.png" alt="Fonts" > 
+				字型
+			</span>
+			<span id="Background">
+				<img src="painter/images/icons/mimetypes/image-x-generic.png" alt="Background" > 
+				背景
+			</span>
+			<span id="Mask">
+				<img src="painter/images/icons/stock/chart/stock_chart-data-in-columns.png" alt="Mask" > 
+				遮罩
+			</span>
+			-->
+		</div>
+	</div>
+	<div id="toolbar_setup_panel" >
+		<div>
+			<span id="NewPage_Detail" >
+				<img src="painter/images/layout_1.png" id="layout_1"> 
+				<img src="painter/images/layout_2.png" id="layout_2">
+			</span>
+		</div>
+	</div>
+
+	<div id="albums" >
+        <div id="left_menu">
+            <span id="photos_btn" onclick="change_page('#photos_page');">照片</span>
+            <span id="text_btn" onclick="change_page('#text_page');">文字</span>
+            <span id="material_btn" onclick="change_page('#material_page');">素材</span>
+            <span id="mask_btn" onclick="change_page('#mask_page');">遮罩</span>
+            <span id="background_btn" onclick="change_page('#background_page');">背景</span>
+        </div>
+		<div id="photos_page" class="support_drag" style="display:none;">
+			<img draggable="true" width="140" height="90" src="painter/albums/2013-08-07_111141.jpg">
+			<br/>2013-08-07_111141.jpg
+			<img draggable="true" width="140" height="90" src="painter/albums/2013-08-07_111215.jpg">
+			<br/>2013-08-07_111215.jpg
+			<img draggable="true" width="140" height="90" src="painter/albums/2013-08-07_111224.jpg">
+			<br/>2013-08-07_111224.jpg
+			<img draggable="true" width="140" height="90" src="painter/albums/2013-08-07_111239.jpg">
+			<br/>2013-08-07_111239.jpg
+			<img draggable="true" width="140" height="90" src="painter/albums/2013-08-07_111247.jpg">
+			<br/>2013-08-07_111247.jpg
+		</div>
+		<div id="text_page" style="display:none;">
+			選擇字型:
+            <div id="fontSelect" class="fontSelect">
+                <div class="arrow-down"></div>
+            </div>
+            <div class="separate_line"></div>
+            文字內容:<br/>
+            <textarea id="add_text" name="add_text" rows="10" cols="25"></textarea>
+            文字大小:<br/>
+            <select id="fontsize" name="fontsize">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40" SELECTED>40</option>
+                <option value="50">50</option>
+                <option value="60">60</option>
+                <option value="70">70</option>
+                <option value="80">80</option>
+                <option value="90">90</option>
+                <option value="100">100</option>
+            </select>
+            <br/>
+            <button id="add_text_btn" onclick="add_text();">新增</button>            
+		</div>
+		<div id="material_page" class="support_drag" style="display:none;">
+			<img draggable="true" width="140" height="90" src="painter/material/1.png">
+			<img draggable="true" width="140" height="90" src="painter/material/2.png">
+			<img draggable="true" width="140" height="90" src="painter/material/3.gif">
+		</div>
+		<div id="background_page" style="display:none;">
+            <span id="apply_background_btn">套用</span>
+			<img width="140" height="90" src="painter/background/1.jpg" onmouseover="move_background_apply_btn($(this).position(), this.src);">
+			<img width="140" height="90" src="painter/background/2.jpg" onmouseover="move_background_apply_btn($(this).position(), this.src);">
+			<img width="140" height="90" src="painter/background/3.jpg" onmouseover="move_background_apply_btn($(this).position(), this.src);">
+			<img width="140" height="90" src="painter/background/4.jpg" onmouseover="move_background_apply_btn($(this).position(), this.src);">
+		</div>
+
+	</div>
+	<div id="layer">
+		<div id="layer_block">
+		<div class="block_name">圖層</div>
+			<div id="layer_list">
+			</div>
+		</div>
+		<div id="property_block">
+		<div class="block_name">屬性</div>
+			<div>寬:<input type="text" id="property_width" size="10"></div>
+			<div>高:<input type="text" id="property_height" size="10"></div>
+			<div>左:<input type="text" id="property_left" size="10"></div>
+			<div>上:<input type="text" id="property_top" size="10"></div>
+		</div>
+	</div>
+	
+	<div id="mycanvas">
+		<div id="separate_line">	
+			<div id="mycanvas_base">
+			
+				<canvas id="c" width="1100" height="500" ></canvas>
+			
+			</div>
+		</div>
+		<div id="right_menu" style="display:none;">
+			<div onclick="delete_object();"><img src="painter/images/icons/actions/process-stop.png"> 刪除</div>
+			<div onclick="object_infront();"><img src="painter/images/icons/stock/object/stock_bring-forward.png"> 移到最上層</div>
+			<div onclick="bring_forward();"><img src="painter/images/icons/stock/object/stock_object-infront.png"> 移到上一層</div>
+			<div onclick="bring_backward();"><img src="painter/images/icons/stock/object/stock_bring-backward.png"> 移到最下層</div>
+			<div onclick="object_behind();"><img src="painter/images/icons/stock/object/stock_object-behind.png"> 移到下一層</div>
+		</div>
+	</div>
+	
+	
+	
+	<div id="pages" >
+		<div id="page_toolbar">
+			<span id="NewPage" onclick="NewPage();">
+				新增
+			</span>
+			<span id="DeletePage" onclick="DeletePage();">
+				刪除
+			</span>
+		</div>
+		<div>
+			<span><img src="painter/images/page.png" width="140" border="1"></span>
+			<span><img src="painter/images/page.png" width="140" border="1"></span>
+			<span><img src="painter/images/page.png" width="140" border="1"></span>
+			<span><img src="painter/images/page.png" width="140" border="1"></span>
+			<span><img src="painter/images/page.png" width="140" border="1"></span>
+			<span><img src="painter/images/page.png" width="140" border="1"></span>
+			<span><img src="painter/images/page.png" width="140" border="1"></span>
+			<span><img src="painter/images/page.png" width="140" border="1"></span>
+		</div>
+	</div>
+</div>
+
+<div id="preview_block" style="display:none">
+	<img id="preview_image" />
+	<a href="#" download="作品1.png" onclick="this.href=canvas.toDataURL();" >下載</a>
+</div>
+
+</body>
+<div id="delay_flag"></div>
+<script src="painter/painter.js"></script>
+<!--
+<div id="init_box_block">
+	<div id="init_inner_box">
+	
+	</div>
+</div>
+-->
+</html>
