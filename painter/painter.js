@@ -41,10 +41,10 @@ Email: yongjie989@gmail.com
 	"object:removed"
 	
 	[Get work list] When load in painter page.
-	HanderPainter.ashx?action=get_work_list&user_id=xx&painter_id=123456
+	HandlerPainter.ashx?action=get_work_list&order_id=xx
 	
 	[Completed] When user click Completed button then send the action.
-	HanderPainter.ashx?action=finish_painter&user_id=xx&painter_id=123456
+	HandlerPainter.ashx?action=finish_painter&order_detail_id=xx&painter_id=123456
 	
 	
 * 2013-09-12
@@ -52,10 +52,20 @@ Email: yongjie989@gmail.com
     So, might create a new field called "layer_index" in table, and write index when add a new object.
 
 */
+
 var active_object;
 var newImage;
 var active_font;
+var display_min_width = 500;
+var display_min_height = 450;
+var display_width = document.width - display_min_width;
+var display_height = document.height - display_min_height;
 
+var canvas = new fabric.Canvas('c');
+canvas.setWidth(display_width);
+canvas.setHeight(display_height);
+$("#mycanvas_base").css({'width':display_width,'height':display_height});
+$("#separate_line").css({'width':display_width/2,'height':display_height});
 document.onselectstart = function () { return false; };
 
 function disableF5(e) {
@@ -79,6 +89,25 @@ function change_page(page) {
 
 
 };
+
+function setStorage(name, value, expires) {
+    var date = new Date();
+    var schedule = Math.round((date.setSeconds(date.getSeconds()+expires))/1000);
+    localStorage.setItem(name, value);
+    localStorage.setItem(name+'_time', schedule);
+}
+
+function getStorage(name){
+	return localStorage.getItem(name);
+}
+
+function clearUserName() {
+    localStorage.user_name = '';
+    localStorage.before_login_url = '';
+    return false;
+}
+
+
 $(document).ready(function () {
     var activate_detail;
 	/*
@@ -175,6 +204,7 @@ function add_text() {
 	canvas.setActiveObject(o[o.length-1]);
 	
 	isnewfont = true;
+	record_step('initial font');
 	record_step('新增文字');
 	add_layer();
 	return false;
@@ -264,7 +294,6 @@ canvas.setActiveObject(o[o.length-1])
 canvas.setBackgroundImage('painter/background/1.jpg', function(){ canvas.renderAll();})
 
 */
-var canvas = new fabric.Canvas('c');
 
 var real_output_area = new fabric.Rect({
   left: canvas.getWidth() / 2,
@@ -320,23 +349,36 @@ function handleDrop(e) {
     }
 
     var img = document.querySelector('.support_drag img.img_dragging');
-
-    console.log('event: ', e);
+	//console.log(img.src);
+    //console.log('event: ', e);
 	var date = new Date();
 	var id = date.getTime();
+	past_width = img.width;
+	past_height = img.height;
+	past_top = img.top;
+	past_left = img.left;
+	past_scaleX = 1;
+	past_scaleY = 1;
     newImage = new fabric.Image(img, {
 		id: id,
         width: img.width,
         height: img.height,
         left: e.layerX,
-        top: e.layerY
+        top: e.layerY,
+		filename: img.src,
+		has_effect_for_mask: false,
+		clipName: id
     });
     canvas.add(newImage);
 	var o = canvas.getObjects();
 	canvas.setActiveObject(o[o.length-1]);
 	isnewobject = true;
+	record_step('initial');
 	record_step('新增物件');
 	add_layer();
+	
+	update_property_block();
+	
     return false;
 }
 
@@ -384,16 +426,15 @@ function show_init_box() {
     $("#init_inner_box").load("product.aspx?category=" + category);
 };
 
-$("#Checkout").click(function () {
-	$.getJSON('HandlerCheckOut.ashx?action=insert_item&user_name=a&category=寫真書&prod_id=9', function(data){
-		if(data){
-			if(data.id == '000'){
-				window.location.href = 'checkout.aspx?user_name=a&category=寫真書&prod_id=9';
-			};
-		};
-	});
-    
-});
+function checkout(){
+    $.getJSON('HandlerCheckOut.ashx?action=insert_item&user_name=a&category=寫真書&prod_id=9', function(data){
+        if(data){
+            if(data.id == '000'){
+                window.location.href = 'checkout.aspx?user_name=a&category=寫真書&prod_id=9&make_type=painter';
+            };
+        };
+    });
+};
 
 function preview(){
 	$("#preview_block").show();
@@ -446,6 +487,7 @@ function bring_forward(){
 	canvas.bringForward( canvas.getActiveObject() );
 	close_right_menu();
 	record_step('移到上一層');
+	exchange_layer('bring_forward');
 };
 
 function object_infront(){
@@ -464,12 +506,25 @@ function object_behind(){
 	canvas.sendBackwards( canvas.getActiveObject() );
 	close_right_menu();
 	record_step('移到下一層');
+	console.log(this);
+	exchange_layer('object_behind');
+};
+function exchange_layer(behavior){
+	var o = canvas.getActiveObject();
+	if (behavior == 'bring_forward'){
+		$("#layer_list").find("div[id='layer_id_"+o.id+"']").insertBefore( $("#layer_list").find("div[id='layer_id_"+o.id+"']").prev("div") )
+	}
+	if (behavior == 'object_behind'){
+		$("#layer_list").find("div[id='layer_id_"+o.id+"']").insertAfter( $("#layer_list").find("div[id='layer_id_"+o.id+"']").next("div") )
+	}
 };
 
 var db = open_database();
 create_database();
 var painter_id;
-var session_name = '順啦';
+var session_name = getStorage('user_name');
+var order_id = get_order_id();
+var order_detail_id;
 var ismoving = false;
 var isscaling = false;
 var isrotating = false;
@@ -482,6 +537,19 @@ var undo_id;
 var redo_id;
 var min_step_id;
 var last_step_id;
+
+var past_width;
+var past_height;
+var past_top;
+var past_left;
+var past_scaleX;
+var past_scaleY;
+
+function get_order_id(){
+	var c = url.parse(location.search);
+    var order_id = c.get.order_id;
+	return order_id;
+};
 
 function open_database(){
 	var db = openDatabase('painter','1.0','painter database', 1024 * 20);
@@ -529,14 +597,51 @@ function record_step(step_name){
 		action_function = 'new font';
 	if(isdelete == true)
 		action_function = 'delete object';
-		
+	
+	if(step_name == 'initial')
+		action_function = 'initial object';
+	if(step_name == 'initial font')
+		action_function = 'initial font';	
 	var layer_index = canvas._objects.length-1;
+	
+	var pw = past_width;
+	console.log('pw = ' + pw);
+	console.log('past_width = ' + past_width);
+	console.log('o.width = ' + o.width);
+	var ph = past_height;
+	var pt = past_top;
+	var pl = past_left;
+	var sx = past_scaleX;
+	var sy = past_scaleY;
+	
+	if (pw == undefined)
+		pw = o.width;
+	if (ph == undefined)
+		ph = o.height;
+	if (pt == undefined)
+		pt = o.top;
+	if (pl == undefined)
+		pl = o.left;
+	if (sx != o.scaleX)
+		sx = o.scaleX;
+	if (sy != o.scaleY)
+		sy = o.scaleY;
+		
+	console.log('pw = ' + pw);
+
+	/*	
+	var sql = 'insert into history (painter_id, user_name, layer_index, object_index, type, top, left, width, height, '+
+	'selectable, opacity, scaleX, scaleY, fill, radius, angle, stroke, strokeWidth, strokeDashArray, filename, action_function, step_name,isdelete)'+
+	' values ("'+painter_id+'","'+session_name+'","'+layer_index+'","'+o.id+'","'+o.type+'","'+pt+'","'+pl+'","'+pw+'","'+ph+'", '+
+	' "'+o.selectable+'","'+o.opacity+'", "'+sx+'", "'+sy+'", "'+o.fill+'", "'+o.radius+'", "'+o.angle+'", "'+o.stroke+'", '+
+	' "'+o.strokeWidth+'", "'+o.strokeDashArray+'", "'+filename+'", "'+action_function+'", "'+step_name+'","N" )';
+	*/
 	var sql = 'insert into history (painter_id, user_name, layer_index, object_index, type, top, left, width, height, '+
 	'selectable, opacity, scaleX, scaleY, fill, radius, angle, stroke, strokeWidth, strokeDashArray, filename, action_function, step_name,isdelete)'+
 	' values ("'+painter_id+'","'+session_name+'","'+layer_index+'","'+o.id+'","'+o.type+'","'+o.top+'","'+o.left+'","'+o.width+'","'+o.height+'", '+
 	' "'+o.selectable+'","'+o.opacity+'", "'+o.scaleX+'", "'+o.scaleY+'", "'+o.fill+'", "'+o.radius+'", "'+o.angle+'", "'+o.stroke+'", '+
 	' "'+o.strokeWidth+'", "'+o.strokeDashArray+'", "'+filename+'", "'+action_function+'", "'+step_name+'","N" )';
-	
+
 	db.transaction(function(d){
 		d.executeSql(sql);
 	});
@@ -575,6 +680,9 @@ canvas.on('mouse:up', function(options) {
 	if (options.target && isrotating == true) {
 		record_step('旋轉');
 	}
+	
+	update_property_block();
+	
 	undo_id = undefined;
 	redo_id = undefined;
 	ismoving = false;
@@ -583,6 +691,25 @@ canvas.on('mouse:up', function(options) {
 
 });
 
+canvas.on('mouse:down', function(options) {
+	console.log('mouse:down');
+	past_width = options.target.width;
+	past_height = options.target.height;
+	past_top = options.target.top;
+	past_left = options.target.left;
+	past_scalX = options.target.scaleX;
+	past_scalY = options.target.scaleY;
+	//console.log(options.target);
+});
+function update_property_block(){
+	var o = canvas.getActiveObject();
+	if(o) {
+		$("#property_width").val(o.width.toFixed(2));
+		$("#property_height").val(o.height.toFixed(2));
+		$("#property_left").val(o.left.toFixed(2));
+		$("#property_top").val(o.top.toFixed(2));
+	}
+};
 
 function get_min_step_id(callback){
 db.transaction(function(tx){
@@ -624,7 +751,7 @@ function undo(){
 		
 		db.transaction(function(d){
 
-			
+			console.log('select * from history where painter_id="'+painter_id+'" and id="'+undo_id+'" ; ');
 			d.executeSql('select * from history where painter_id="'+painter_id+'" and id="'+undo_id+'" ; ', [], function(tx, results){
 				if(results.rows.length > 0){
 					var o = results.rows.item(0);
@@ -634,12 +761,16 @@ function undo(){
 						undo_scale(o);
 					if(o.action_function == 'rotating')
 						undo_rotate(o);
-					if(o.action_function == 'new object')
+					if(o.action_function == 'initial object')
 						undo_handleDrop(o);
+					if(o.action_function == 'new object')
+						undo_new_object(o);
 					if(o.action_function == 'delete object')
 						undo_delete_object(o);
 					if(o.action_function == 'new font')
-						undo_add_text(o);
+						undo_new_font(o);
+					if(o.action_function == 'initial font')	
+						undo_add_font(o);
 					if(o.action_function == 'object_behind')
 						undo_object_behind(o);
 					if(o.action_function == 'bring_forward')
@@ -732,26 +863,42 @@ function undo_rotate(o){
 	}; 
 };
 
-function undo_handleDrop(o){
-	db.transaction(function(tx){
-		var sql = 'update history set isdelete="Y" where painter_id="'+painter_id+'" and object_index="'+o.object_index+'"; ';
-		console.log(sql);
-		tx.executeSql(sql, [], function(tx, results){
-		});
-	});
-	
+function undo_new_object(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
-			next_o[i].visible = false;
+			next_o[i].set({top:o.top, left:o.left, width:o.width, height:o.height, scaleX:o.scaleX, scaleY:o.scaleY, angle:o.angle});
+			next_o[i].adjustPosition();
 			canvas.renderAll();
 			break;
 		};
 	}; 
-	//var remove_layer_index = (next_o.length-1);
-	//$("#layer_list > div:eq("+remove_layer_index+")").hide();
-	$("#layer_list").find("div[id='layer_id_"+o.object_index+"']").hide();
 };
+
+
+function undo_handleDrop(o){
+	if(confirm('確定刪除物件?刪除後將無法復原.')){
+		db.transaction(function(tx){
+			var sql = 'update history set isdelete="Y" where painter_id="'+painter_id+'" and object_index="'+o.object_index+'"; ';
+			console.log(sql);
+			tx.executeSql(sql, [], function(tx, results){
+			});
+		});
+		
+		var next_o = canvas.getObjects();
+		for(var i=0; i<= next_o.length-1; i++){
+			if (next_o[i].id == o.object_index){
+				next_o[i].visible = false;
+				canvas.renderAll();
+				break;
+			};
+		}; 
+		//var remove_layer_index = (next_o.length-1);
+		//$("#layer_list > div:eq("+remove_layer_index+")").hide();
+		$("#layer_list").find("div[id='layer_id_"+o.object_index+"']").hide();
+	}
+};
+
 
 function undo_delete_object(o){
 	db.transaction(function(tx){
@@ -773,7 +920,19 @@ function undo_delete_object(o){
 	//$("#layer_list > div:eq("+remove_layer_index+")").show();
 	$("#layer_list").find("div[id='layer_id_"+o.object_index+"']").show();
 };
-function undo_add_text(o){
+function undo_new_font(o){
+	var next_o = canvas.getObjects();
+	for(var i=0; i<= next_o.length-1; i++){
+		if (next_o[i].id == o.object_index){
+			next_o[i].set({top:o.top, left:o.left, width:o.width, height:o.height, scaleX:o.scaleX, scaleY:o.scaleY, angle:o.angle});
+			next_o[i].adjustPosition();
+			canvas.renderAll();
+			break;
+		};
+	}; 
+};
+
+function undo_add_font(o){
 	db.transaction(function(tx){
 		var sql = 'update history set isdelete="Y" where painter_id="'+painter_id+'" and object_index="'+o.object_index+'"; ';
 		console.log(sql);
@@ -961,77 +1120,195 @@ function add_layer(){
 				img+
 				'<span id="layer_name">'+name+'</span>'+
 				'</div>';
-	$("#layer_list").append(new_layer);
+	console.log(new_layer);
+	$("#layer_list").prepend(new_layer);
 };
+
+
+function completed(){
+	$("#dialog").dialog({width: 350}).css({'font-size':'12px'});
+	/*
+	if (confirm('[完成製作]: 是否需美工人員預覽作品並提供建議? \n\n 完成製作後使用者只能預覽，不能修改作品。')){
+		$.get('HandlerPainter.ashx?action=finish_painter',{'order_detail_id':order_detail_id,'painter_id': painter_id},function(data){
+	
+		});
+	}
+	*/
+	
+};
+
+function close_work_list(){
+	$("#work_list").hide();
+};
+function get_work_list(){
+	var json = {};
+	json.order_id = order_id;
+	var json = jQuery.parseJSON(JSON.stringify(json));
+	$.ajax({
+		dataType: "json",
+		url: 'HandlerPainter.ashx?action=get_work_list',
+		data: json,
+		success: function (data) {
+			if (data.id == '000'){
+				$("#work_list").html("");
+				var wl = JSON.parse(data.message);
+				$.each(wl.work_list, function(k, v){
+					console.log(v.painter_status);
+					if (v.painter_status == 'open')
+						cls = 'class="open_work_list" onclick="exchange_painter(\''+v.order_detail_id+'\');"';
+					else
+						cls = 'class="finish_work_list" ';
+					var work_list  = '<div '+cls+'>'+v.product_type+': '+v.product_spec+' (W):'+v.width+' (H):'+v.height+'</div>';
+					$("#work_list").append(work_list);
+				});
+				$("#work_list").append('<label style="cursor:pointer;float:right" onclick="close_work_list()">[關閉]</a></label>');
+				$("#work_list").show();
+			}
+			
+		}
+	});
+
+};
+
+function exchange_painter(id){
+	order_detail_id = id;
+	close_work_list();
+};
+
+function close_reference(){
+	$("#reference_block").hide();
+};
+
+function open_reference(){
+	$("#reference_block").html('<img src="painter/images/reference_photo.jpg">');
+	$("#reference_block").append('<label style="cursor:pointer;float:right" onclick="close_reference()">[關閉]</a></label>');
+	$("#reference_block").show();
+};
+
+function save(){
+	var json = {};
+	var objects = canvas._objects;
+	
+	json.painter = painter_id;
+	json.order_id = order_id;
+	json.order_detail_id = order_detail_id;
+	json.properties = [];
+	$.each(objects, function(k, v){
+		if(k>0){
+			var d = {};
+			json.properties.push(d);
+			
+			d.painter_id = painter_id;
+			d.user_name =  session_name;
+			d.layer_index = k;
+			d.object_index = v.id;
+			d.type = v.type;
+			d.top = v.top;
+			d.left = v.left;
+			d.width = v.width;
+			d.height = v.height;
+			d.selectable = v.selectable;
+			d.opacity = v.opacity;
+			d.scaleX = v.scaleX;
+			d.scaleY = v.scaleY;
+			d.fill = v.fill;
+			d.radius = v.radius;
+			d.angle = v.angle;
+			d.stroke = v.stroke;
+			d.strokeWidth = v.strokeWidth;
+			d.strokeDashArray = v.strokeDashArray;
+			d.filename = v.filename;
+			d.action_function = '';
+			d.step_name = '';
+			d.isdelete = 'N';
+			json.properties.push();
+		};
+	});
+	
+	console.log(json);
+};
+
 /*
-{ "order_master_id" : "6",
-  "work_list" : [ { "height" : "2",
-        "note" : "",
-        "order_detail_id" : "57",
-        "pages" : "3",
-        "painter_id" : "",
-        "painter_status" : "open",
-        "product_amount" : "3",
-        "product_discount" : "0",
-        "product_price" : "5",
-        "product_spec" : "Gechic ON-LAP 1502I/T 壁掛配件VESA100 支架..客訂, $990 ★",
-        "product_type" : "寫真書",
-        "width" : "1"
-      },
-      { "height" : "13213",
-        "note" : "",
-        "order_detail_id" : "58",
-        "pages" : "111",
-        "painter_id" : "",
-        "painter_status" : "open",
-        "product_amount" : "4",
-        "product_discount" : "0",
-        "product_price" : "123",
-        "product_spec" : "Gechic ON-LAP 1502I(IPS面板)/15.6\"觸控式筆記型螢幕/含喇叭/附腳架/可壁掛, $11490 ◆ ★",
-        "product_type" : "寫真書",
-        "width" : "123"
-      },
-      { "height" : "2",
-        "note" : "",
-        "order_detail_id" : "59",
-        "pages" : "3",
-        "painter_id" : "",
-        "painter_status" : "open",
-        "product_amount" : "4",
-        "product_discount" : "0",
-        "product_price" : "5",
-        "product_spec" : "Gechic ON-LAP 1502I/T 壁掛配件VESA100 支架..客訂, $990 ★",
-        "product_type" : "寫真書",
-        "width" : "1"
-      },
-      { "height" : "2",
-        "note" : "",
-        "order_detail_id" : "60",
-        "pages" : "5",
-        "painter_id" : "",
-        "painter_status" : "open",
-        "product_amount" : "2",
-        "product_discount" : "0",
-        "product_price" : "123456",
-        "product_spec" : "BENQ L24-6500 24吋LED背光,FullHD1080P,USB多媒體播放, $6900 ★",
-        "product_type" : "寫真書",
-        "width" : "1"
-      },
-      { "height" : "2",
-        "note" : "",
-        "order_detail_id" : "61",
-        "pages" : "5",
-        "painter_id" : "",
-        "painter_status" : "open",
-        "product_amount" : "1",
-        "product_discount" : "0",
-        "product_price" : "654321",
-        "product_spec" : "Gechic ON-LAP 1302/13.3\"LED/USB供電/僅654g/8mm/附支架, $3990 ◆ ★",
-        "product_type" : "寫真書",
-        "width" : "1"
-      }
-    ]
+o = canvas.getActiveObject();
+o.clipTo = function(ctx){
+console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+console.log(ctx);
+console.log(ctx.getImageData(0,0,50,50));
+ctx.save();
+ctx.beginPath();
+ctx.rect(10, 10, 50, 50);
+ctx.closePath();
+ctx.restore();
 }
+
+//http://fabricjs.com/patterns/
+
+
+
+
+
 */
 
+//loadPattern('file:///E:/painter/painter/albums/8.png');
+/*
+function loadPattern(url) {
+  fabric.util.loadImage(url, function(img) {
+	var o = canvas.getActiveObject();
+	//o.fill = new fabric.Pattern({
+    text.fill = new fabric.Pattern({
+      source: img,
+      repeat: 'no-repeat'
+    });
+    canvas.renderAll();
+  });
+};
 
+
+var text = new fabric.Text('Honey,\nI\'m subtle', {
+  fontSize: 250,
+  left: 50,
+  top: 200,
+  lineHeight: 1,
+  originX: 'left',
+  fontFamily: 'Helvetica',
+  fontWeight: 'bold'
+});
+canvas.add(text);
+*/
+
+/*
+(function(){
+  var imagecanvas = document.createElement('canvas');
+  var imagecontext = imagecanvas.getContext('2d');
+
+  window.addEventListener('load', function(){
+    [].forEach.call(document.querySelectorAll('.mask'), function(img){
+      var width  = img.offsetWidth;
+      var height = img.offsetHeight;
+
+      var mask = document.createElement('img');
+      mask.src = img.getAttribute('data-mask');
+
+      imagecanvas.width  = width;
+      imagecanvas.height = height;
+
+      imagecontext.drawImage(mask, 0, 0, width, height);
+      imagecontext.globalCompositeOperation = 'source-atop';
+      imagecontext.drawImage(img, 0, 0);
+
+      img.src = imagecanvas.toDataURL();
+    });
+  }, false);
+
+})();
+
+
+<img src="red-panda.jpg" alt="Red panda" class="mask" data-mask="centerblur.png">
+<img src="red-panda.jpg" alt="Red panda" class="mask" data-mask="star.png">
+
+http://codepo8.github.io/canvas-masking/
+
+
+REFERENCE: globalCompositeOperation  
+https://developer.mozilla.org/samples/canvas-tutorial/6_1_canvas_composite.html
+*/

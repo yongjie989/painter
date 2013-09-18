@@ -43,7 +43,7 @@ Email: yongjie989@gmail.com
 
 
 html, body {
-	font-family: 'Buenard', serif, "新細明體", "王漢宗新潮體", "王漢宗特明體", "王漢宗中隸書", "王漢宗中仿宋", "王漢宗空疊圓", "王漢宗勘亭流","王漢宗酷正海報",'Flavors','UnifrakturMaguntia','Hanalei','Pinyon Script';
+	font-family: 'Buenard', Arial, Helvetica, Courier, serif, "新細明體", "王漢宗新潮體", "王漢宗特明體", "王漢宗中隸書", "王漢宗中仿宋", "王漢宗空疊圓", "王漢宗勘亭流","王漢宗酷正海報",'Flavors','UnifrakturMaguntia','Hanalei','Pinyon Script';
 	margin-left: 0px;
 	margin-top: 0px;
 	margin-right: 0px;
@@ -107,7 +107,7 @@ html, body {
 #albums {
 	float: left;
 	width: 170px;
-	height: 96%;
+	height: 93%;
 	background-color: #D1D0CE;	
 	border-right: 3px solid #dddddd;
 	overflow-y: scroll;
@@ -188,8 +188,8 @@ input, textarea {
 }
 
 #layer {
-	height: 96%;
-	width:200px;
+	height: 93%;
+	width:150px;
 	background-color:#DFDFDF;
 	float:right;
 	border: 1px solid #000000;
@@ -212,7 +212,7 @@ input, textarea {
 
 #layer_list {
 	overflow-y: scroll;
-	height: 500px;
+	height: 300px;
 }
 #layer_name{
 	font-size:10px;
@@ -243,4 +243,57 @@ input, textarea {
 	border-radius: 5px;
 	box-shadow: 3px 3px #cccccc;
 	cursor: pointer;
+}
+
+#work_list {
+	font-size:10px;
+	width:600px;
+	height:150px;
+	position: relative;
+	background-color: #FFFFFF;
+	border: 1px solid #000000;
+	left:200px;
+	filter: alpha(opacity=1);
+	-khtml-opacity: 1;
+	-moz-opacity: 1;
+	opacity: 1;
+	z-index:999;
+	overflow-y: scroll;
+	box-shadow: 10px 10px 5px #888888;
+
+}
+#work_list div {
+	margin-bottom:5px;
+}
+
+#work_list div:hover {
+	background-color: #cccccc;
+	padding:5px;
+}
+
+.finish_work_list {
+	color: #00008c;
+}
+
+.open_work_list {
+	cursor: pointer;
+	color: #000000;
+}
+
+#reference_block {
+	font-size:10px;
+	width:600px;
+	height:150px;
+	position: relative;
+	background-color: #FFFFFF;
+	border: 1px solid #000000;
+	left:200px;
+	filter: alpha(opacity=1);
+	-khtml-opacity: 1;
+	-moz-opacity: 1;
+	opacity: 1;
+	z-index:999;
+	overflow-y: scroll;
+	box-shadow: 10px 10px 5px #888888;
+
 }

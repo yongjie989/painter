@@ -11,6 +11,9 @@
 <script src="painter/modernizr.custom.50476.js"></script>
 <script src="painter/jquery.fontselector.js"></script>
 <script src="painter/url.js"></script>
+<link rel="stylesheet" type="text/css" href="painter/ui-lightness/jquery-ui-1.10.3.custom.css" />
+<script type="text/javascript" src="painter/jquery-ui-1.10.3.custom.js"></script>
+
 
 <style>
 #init_box_block{
@@ -46,9 +49,6 @@
 <div id="whole_content">
 	<div id="toolbar">
 		<div>
-			<span id="Completed" onclick="checkout();">
-				結帳
-			</span>
 			<span id="Completed" onclick="completed();">
 				完成製作
 			</span>
@@ -75,13 +75,16 @@
 			<span id="ZoomOut" onclick="decrease_object();";>
 				縮小
 			</span>
-			<span id="Standard" onclick="";>
+			<span id="WorkList" onclick="get_work_list();";>
 				工作清單
 			</span>
-			<span id="Standard" onclick="";>
+			<span id="Reference" onclick="open_reference();";>
 				參考標準色
 			</span>
-			
+			<div id="work_list" style="display:none"></div>
+			<div id="reference_block" style="display:none">
+				
+			</div>
 			<!--
 			<span id="Fonts">
 				<img src="painter/images/icons/actions/format-text-bold.png" alt="Fonts" > 
@@ -115,7 +118,7 @@
             <span id="mask_btn" onclick="change_page('#mask_page');">遮罩</span>
             <span id="background_btn" onclick="change_page('#background_page');">背景</span>
         </div>
-		<div id="photos_page" class="support_drag" style="display:none;">
+		<div id="photos_page" class="support_drag" >
 			<img draggable="true" width="140" height="90" src="painter/albums/2013-08-07_111141.jpg">
 			<br/>2013-08-07_111141.jpg
 			<img draggable="true" width="140" height="90" src="painter/albums/2013-08-07_111215.jpg">
@@ -179,27 +182,27 @@
 			<div>上:<input type="text" id="property_top" size="10"></div>
 		</div>
 	</div>
-	
 	<div id="mycanvas">
 		<div id="separate_line">	
 			<div id="mycanvas_base">
-			
-				<canvas id="c" width="1100" height="500" ></canvas>
-			
+				<canvas id="c" ></canvas>
 			</div>
 		</div>
 		<div id="right_menu" style="display:none;">
 			<div onclick="delete_object();"><img src="painter/images/icons/actions/process-stop.png"> 刪除</div>
-			<div onclick="object_infront();"><img src="painter/images/icons/stock/object/stock_bring-forward.png"> 移到最上層</div>
 			<div onclick="bring_forward();"><img src="painter/images/icons/stock/object/stock_object-infront.png"> 移到上一層</div>
-			<div onclick="bring_backward();"><img src="painter/images/icons/stock/object/stock_bring-backward.png"> 移到最下層</div>
 			<div onclick="object_behind();"><img src="painter/images/icons/stock/object/stock_object-behind.png"> 移到下一層</div>
+			<!--
+			<div onclick="object_infront();"><img src="painter/images/icons/stock/object/stock_bring-forward.png"> 移到最上層</div>
+			<div onclick="bring_backward();"><img src="painter/images/icons/stock/object/stock_bring-backward.png"> 移到最下層</div>
+			-->
 		</div>
 	</div>
 	
 	
 	
 	<div id="pages" >
+		<div style="font-size:10px;color:#444444;">灰色:出血線; 紅色:中間線</div>
 		<div id="page_toolbar">
 			<span id="NewPage" onclick="NewPage();">
 				新增
@@ -209,14 +212,14 @@
 			</span>
 		</div>
 		<div>
-			<span><img src="painter/images/page.png" width="140" border="1"></span>
-			<span><img src="painter/images/page.png" width="140" border="1"></span>
-			<span><img src="painter/images/page.png" width="140" border="1"></span>
-			<span><img src="painter/images/page.png" width="140" border="1"></span>
-			<span><img src="painter/images/page.png" width="140" border="1"></span>
-			<span><img src="painter/images/page.png" width="140" border="1"></span>
-			<span><img src="painter/images/page.png" width="140" border="1"></span>
-			<span><img src="painter/images/page.png" width="140" border="1"></span>
+			<span><img src="painter/images/page.png" width="100" border="1"></span>
+			<span><img src="painter/images/page.png" width="100" border="1"></span>
+			<span><img src="painter/images/page.png" width="100" border="1"></span>
+			<span><img src="painter/images/page.png" width="100" border="1"></span>
+			<span><img src="painter/images/page.png" width="100" border="1"></span>
+			<span><img src="painter/images/page.png" width="100" border="1"></span>
+			<span><img src="painter/images/page.png" width="100" border="1"></span>
+			<span><img src="painter/images/page.png" width="100" border="1"></span>
 		</div>
 	</div>
 </div>
@@ -236,4 +239,13 @@
 	</div>
 </div>
 -->
+<div id="dialog" title="Doitwell Painter System" style="display:none">
+  <p>[完成製作]: 完成製作後使用者只能預覽，不能修改作品。
+  <br/>
+  <input type="checkbox" name="confirm_for_artist" value="Y" checked="checked" /> 是否需美工人員預覽作品並提供建議?
+  <br/>
+  <button>確定</button>
+  <button>取消</button>
+  </p>
+</div>
 </html>
