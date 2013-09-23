@@ -3,13 +3,13 @@
 
     color: #000000;
 	position: relative;
-	padding: 3px;
-	height: 28px;
-	line-height: 28px;
+	padding: 2px;
+	height: 16px;
+	line-height: 16px;
 	cursor: pointer;
 	margin: 3px;
-
-	width: 200px;
+	font-size:12px;
+	width: 120px;
 
 	background-image: -webkit-linear-gradient(top, #f9f9f9, #f0f0f0);
 	background-image: -moz-linear-gradient(top, #f9f9f9, #f0f0f0);
@@ -31,18 +31,15 @@
 .fontSelect .arrow-down {
 	position: absolute;
 	right: 10px;
-	top: 14px;
-	border-left: 6px solid transparent;
-	border-right: 6px solid transparent;
+	top: 4px;
 
-	border-top: 6px solid #AAA;
 }
 
 .fontSelectUl {
     font-family: "¤ýº~©v·s¼éÅé";
 
 	list-style: none;
-	width: 200px;
+	width: 120px;
 	background: #f9f9f9;
 	position: absolute;
 	left: 0;
@@ -56,7 +53,7 @@
 	cursor: pointer;
 	padding: 0 10px;
 
-	font-size: 14px;
+	font-size: 12px;
 
 	border-left: 1px solid #f0f0f0;
 	border-right: 1px solid #f0f0f0;

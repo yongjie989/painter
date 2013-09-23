@@ -62,7 +62,7 @@ html, body {
 	padding: 0px;	
 }
 #toolbar div span {
-	font-size:10px;
+	font-size:12px;
 	text-shadow: 2px 2px #cccccc;
 	font-weight: bold;
 	background-color: #f2f2f2;
@@ -88,7 +88,7 @@ html, body {
 }
 
 #toolbar_setup_panel div span {
-	font-size: 10px;
+	font-size: 12px;
 	text-shadow: 2px 2px #cccccc;
 	font-weight: bold;
 	width: 100px;
@@ -123,14 +123,8 @@ html, body {
 	margin-top: 30px;
 }
 
-#separate_line {
-	margin-left: 200px;
-	border-right: 1px dashed #ff0000;
-	width: 550px;
-	height: 500px;
-}
 #mycanvas_base {
-	
+	margin-left: 200px;
 	border: 1px solid #cccccc;
 	width: 1100px;
 	height: 500px;
@@ -142,13 +136,14 @@ html, body {
 	margin-left: 200px;
 }
 #pages div {
-	padding-top: 25px;	
+	padding-top: 15px;	
 }
 
 #left_menu span {
+    color: #ffffff;
 	line-height: 30px;
-	padding-left: 6px;
-	padding-right: 6px;
+	padding-left: 5px;
+	padding-right: 5px;
 	padding-top: 3px;
 	padding-bottom: 3px;
 	border: 1px solid #ffffff;
@@ -175,12 +170,10 @@ html, body {
 }
 
 #text_page {
-    color:#ffffff;
+    color:#000000;
 }
 
-.separate_line {
-    border-bottom: 1px dotted #ffffff;
-}
+
 
 input, textarea {
     border: 1px solid #cccccc;
@@ -193,6 +186,9 @@ input, textarea {
 	background-color:#DFDFDF;
 	float:right;
 	border: 1px solid #000000;
+    position: relative;
+    /*top:-400px;*/
+    
 }
 
 .layer_block {
@@ -215,7 +211,22 @@ input, textarea {
 	height: 300px;
 }
 #layer_name{
-	font-size:10px;
+	font-size:12px;
+}
+
+#close_layer {
+    float: left;
+    position: relative;
+    left:-20px;
+    cursor:pointer;
+}
+
+#open_layer {
+	cursor: pointer;
+	float:right;
+    position: relative;
+    display:none;
+    
 }
 
 #page_toolbar span {
@@ -236,7 +247,7 @@ input, textarea {
 	border: 1px solid #3B3131;
 	padding: 3px;
 	background-color: #837E7C;
-	font-size:10px;
+	font-size:12px;
 	color: #ffffff;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
@@ -246,7 +257,7 @@ input, textarea {
 }
 
 #work_list {
-	font-size:10px;
+	font-size:12px;
 	width:600px;
 	height:150px;
 	position: relative;
@@ -281,7 +292,7 @@ input, textarea {
 }
 
 #reference_block {
-	font-size:10px;
+	font-size:12px;
 	width:600px;
 	height:150px;
 	position: relative;
@@ -296,4 +307,19 @@ input, textarea {
 	overflow-y: scroll;
 	box-shadow: 10px 10px 5px #888888;
 
+}
+
+#pages_list {
+    margin-top: 20px;
+    height: 80px;
+    width: 800px;
+    overflow-x: scroll;
+    overflow-y:hidden;
+    white-space: nowrap;
+    border: 1px solid #000000;
+    
+}
+
+#pages_list div {
+    display: inline;
 }

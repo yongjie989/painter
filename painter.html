@@ -137,7 +137,7 @@
             </div>
             <div class="separate_line"></div>
             文字內容:<br/>
-            <textarea id="add_text" name="add_text" rows="10" cols="25"></textarea>
+            <textarea id="add_text" name="add_text" rows="5" cols="15"></textarea>
             文字大小:<br/>
             <select id="fontsize" name="fontsize">
                 <option value="10">10</option>
@@ -168,6 +168,7 @@
 		</div>
 
 	</div>
+<!--
 	<div id="layer">
 		<div id="layer_block">
 		<div class="block_name">圖層</div>
@@ -182,12 +183,32 @@
 			<div>上:<input type="text" id="property_top" size="10"></div>
 		</div>
 	</div>
+-->
+	<div id="layer">
+        <span id="close_layer" onclick="$('#layer').fadeOut();$('#open_layer').show();"><img src="painter/images/hide_layer.png"></span>
+		<div id="layer_block">
+		<div class="block_name">圖層</div>
+			<div id="layer_list">
+			</div>
+		</div>
+		<div id="property_block">
+		<div class="block_name">屬性</div>
+			<div>寬:<input type="text" id="property_width" size="10"></div>
+			<div>高:<input type="text" id="property_height" size="10"></div>
+			<div>左:<input type="text" id="property_left" size="10"></div>
+			<div>上:<input type="text" id="property_top" size="10"></div>
+		</div>
+	</div>
+    <span id="open_layer" onclick="$('#layer').fadeIn();$('#open_layer').hide();"><img src="painter/images/show_layer.png"></span>
+
+
 	<div id="mycanvas">
-		<div id="separate_line">	
+		
 			<div id="mycanvas_base">
 				<canvas id="c" ></canvas>
 			</div>
-		</div>
+
+		
 		<div id="right_menu" style="display:none;">
 			<div onclick="delete_object();"><img src="painter/images/icons/actions/process-stop.png"> 刪除</div>
 			<div onclick="bring_forward();"><img src="painter/images/icons/stock/object/stock_object-infront.png"> 移到上一層</div>
@@ -198,6 +219,7 @@
 			-->
 		</div>
 	</div>
+    
 	
 	
 	
@@ -211,18 +233,43 @@
 				刪除
 			</span>
 		</div>
-		<div>
-			<span><img src="painter/images/page.png" width="100" border="1"></span>
-			<span><img src="painter/images/page.png" width="100" border="1"></span>
-			<span><img src="painter/images/page.png" width="100" border="1"></span>
-			<span><img src="painter/images/page.png" width="100" border="1"></span>
-			<span><img src="painter/images/page.png" width="100" border="1"></span>
-			<span><img src="painter/images/page.png" width="100" border="1"></span>
-			<span><img src="painter/images/page.png" width="100" border="1"></span>
-			<span><img src="painter/images/page.png" width="100" border="1"></span>
-		</div>
+
+        <div id="pages_list">
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+            <div><img src="painter/images/page.png" width="100" border="1"></div>
+        </div>
+
 	</div>
+    
 </div>
+
 
 <div id="preview_block" style="display:none">
 	<img id="preview_image" />
@@ -242,9 +289,16 @@
 <div id="dialog" title="Doitwell Painter System" style="display:none">
   <p>[完成製作]: 完成製作後使用者只能預覽，不能修改作品。
   <br/>
-  <input type="checkbox" name="confirm_for_artist" value="Y" checked="checked" /> 是否需美工人員預覽作品並提供建議?
+  <input type="checkbox" id="confirm_for_artist" name="confirm_for_artist" value="Y" checked="checked" /> 是否需美工人員預覽作品並提供建議?
   <br/>
-  <button>確定</button>
+  <button type="button" onclick="update_artist()">確定</button>
+  <button type="button" onclick="$('#dialog').close()">取消</button>
+  </p>
+</div>
+
+<div id="dialog" title="Doitwell Painter System" style="display:none">
+  <p>
+  <button type="button" onclick="update_artist()">確定</button>
   <button>取消</button>
   </p>
 </div>

@@ -197,7 +197,9 @@ function add_text() {
         fontFamily: active_font,
         fontSize: parseInt(fontsize),
         left: 100,
-        top: 100
+        top: 100,
+		output_pass: false,
+		always_on_top: false
     });
     canvas.add(new_text);
 	var o = canvas.getObjects();
@@ -304,9 +306,24 @@ var real_output_area = new fabric.Rect({
   strokeWidth: 1,
   selectable: false,
   strokeDashArray: [2, 2],
-  stroke: 'rgba(0, 0, 217)'
+  stroke: '#0000FF',
+  id: 'real_output_area',
+  output_pass: true,
+  always_on_top: true,
 });
 canvas.add(real_output_area);
+
+var middle_line = new fabric.Line([canvas.getWidth() / 2,0,canvas.getWidth() / 2,canvas.getHeight()], {
+    fill: 'red',
+    stroke: 'red',
+    strokeWidth: 1,
+    selectable: false,
+	strokeDashArray: [2, 2],
+	id: 'middle_line',
+	output_pass: true,
+	always_on_top: true
+  });
+canvas.add(middle_line);
 /*
 var circle = new fabric.Circle({
     radius: 20, fill: 'green', left: 100, top: 100, angle: 45, id : canvas.getObjects().length
@@ -367,7 +384,9 @@ function handleDrop(e) {
         top: e.layerY,
 		filename: img.src,
 		has_effect_for_mask: false,
-		clipName: id
+		clipName: id,
+		output_pass: false,
+		always_on_top: false
     });
     canvas.add(newImage);
 	var o = canvas.getObjects();
@@ -378,7 +397,7 @@ function handleDrop(e) {
 	add_layer();
 	
 	update_property_block();
-	
+	adjust_layer();
     return false;
 }
 
@@ -602,7 +621,15 @@ function record_step(step_name){
 		action_function = 'initial object';
 	if(step_name == 'initial font')
 		action_function = 'initial font';	
-	var layer_index = canvas._objects.length-1;
+    
+    //var layer_index = canvas._objects.length-1;
+    for(var i=0;i<canvas._objects.length;i++){
+        //console.log('canvas._objects[i].id = ' + canvas._objects[i].id + '   ' + 'o.id = ' + o.id);
+        if(canvas._objects[i].id == o.id){
+            var layer_index = i;
+            break;
+        }
+    }
 	
 	var pw = past_width;
 	console.log('pw = ' + pw);
@@ -751,6 +778,10 @@ function undo(){
 		
 		db.transaction(function(d){
 
+			if (undo_id > min_step_id)
+				undo_id--;
+			console.log('undo_id = ' + undo_id);
+
 			console.log('select * from history where painter_id="'+painter_id+'" and id="'+undo_id+'" ; ');
 			d.executeSql('select * from history where painter_id="'+painter_id+'" and id="'+undo_id+'" ; ', [], function(tx, results){
 				if(results.rows.length > 0){
@@ -779,9 +810,6 @@ function undo(){
 						
 				}
 			});
-			if (undo_id > min_step_id)
-				undo_id--;
-			console.log('undo_id = ' + undo_id);
 			
 		});
 		
@@ -832,6 +860,7 @@ function undo_move(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			next_o[i].set({top:o.top, left:o.left, width:o.width, height:o.height, scaleX:o.scaleX, scaleY:o.scaleY, angle:o.angle});
 			next_o[i].adjustPosition();
 			canvas.renderAll();
@@ -843,6 +872,7 @@ function undo_scale(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			next_o[i].set({top:o.top, left:o.left, width:o.width, height:o.height, scaleX:o.scaleX, scaleY:o.scaleY, angle:o.angle});
 			next_o[i].adjustPosition();
 			canvas.renderAll();
@@ -855,6 +885,7 @@ function undo_rotate(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			next_o[i].set({top:o.top, left:o.left, width:o.width, height:o.height, scaleX:o.scaleX, scaleY:o.scaleY, angle:o.angle});
 			next_o[i].adjustPosition();
 			canvas.renderAll();
@@ -867,6 +898,7 @@ function undo_new_object(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			next_o[i].set({top:o.top, left:o.left, width:o.width, height:o.height, scaleX:o.scaleX, scaleY:o.scaleY, angle:o.angle});
 			next_o[i].adjustPosition();
 			canvas.renderAll();
@@ -888,6 +920,7 @@ function undo_handleDrop(o){
 		var next_o = canvas.getObjects();
 		for(var i=0; i<= next_o.length-1; i++){
 			if (next_o[i].id == o.object_index){
+				canvas.setActiveObject( next_o[i] );
 				next_o[i].visible = false;
 				canvas.renderAll();
 				break;
@@ -911,6 +944,7 @@ function undo_delete_object(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			next_o[i].visible = true;
 			canvas.renderAll();
 			break;
@@ -924,6 +958,7 @@ function undo_new_font(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			next_o[i].set({top:o.top, left:o.left, width:o.width, height:o.height, scaleX:o.scaleX, scaleY:o.scaleY, angle:o.angle});
 			next_o[i].adjustPosition();
 			canvas.renderAll();
@@ -943,6 +978,7 @@ function undo_add_font(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			next_o[i].visible = false;
 			canvas.renderAll();
 			break;
@@ -957,6 +993,7 @@ function undo_object_behind(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			canvas.bringForward( next_o[i] );
 			break;
 		};
@@ -966,6 +1003,7 @@ function undo_bring_forward(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			canvas.sendBackwards( next_o[i] );
 			break;
 		};
@@ -978,6 +1016,7 @@ function redo_move(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			next_o[i].set({top:o.top, left:o.left, width:o.width, height:o.height, scaleX:o.scaleX, scaleY:o.scaleY, angle:o.angle});
 			next_o[i].adjustPosition();
 			canvas.renderAll();
@@ -989,6 +1028,7 @@ function redo_scale(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			next_o[i].set({top:o.top, left:o.left, width:o.width, height:o.height, scaleX:o.scaleX, scaleY:o.scaleY, angle:o.angle});
 			next_o[i].adjustPosition();
 			canvas.renderAll();
@@ -1000,6 +1040,7 @@ function redo_rotate(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			next_o[i].set({top:o.top, left:o.left, width:o.width, height:o.height, scaleX:o.scaleX, scaleY:o.scaleY, angle:o.angle});
 			next_o[i].adjustPosition();
 			canvas.renderAll();
@@ -1011,6 +1052,7 @@ function redo_object_behind(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			canvas.sendBackwards( next_o[i] );
 			break;
 		};
@@ -1020,6 +1062,7 @@ function redo_bring_forward(o){
 	var next_o = canvas.getObjects();
 	for(var i=0; i<= next_o.length-1; i++){
 		if (next_o[i].id == o.object_index){
+			canvas.setActiveObject( next_o[i] );
 			canvas.bringForward( next_o[i] );
 			break;
 		};
@@ -1096,6 +1139,15 @@ function get_redo_result(data){
 			});
 		});
 	}
+};
+
+function adjust_layer() {
+	var next_o = canvas.getObjects();
+	for(var i=0; i<= next_o.length-1; i++){
+		if (next_o[i].always_on_top == true){
+			canvas.bringToFront( next_o[i] );
+		};
+	}; 
 };
 
 function add_layer(){
@@ -1228,6 +1280,26 @@ function save(){
 	console.log(json);
 };
 
+function update_artist(){
+	var json = {};
+	json.painter_id = painter_id;
+	if ($("#confirm_for_artist:checked").val() == "Y")
+		json.artist = "Y";
+	else
+		json.artist = "N";
+	var json = jQuery.parseJSON(JSON.stringify(json));
+	$.ajax({
+		dataType: "json",
+		url: 'HandlerPainter.aspx?action=update_artist',
+		data: json,
+		success: function (data) {
+			if (data.id == '000'){
+				
+			}
+			
+		}
+	});
+};
 /*
 o = canvas.getActiveObject();
 o.clipTo = function(ctx){
